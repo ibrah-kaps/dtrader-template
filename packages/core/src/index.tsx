@@ -1,6 +1,7 @@
 /* eslint-disable import/no-named-as-default-member */
 /* eslint-disable import/no-named-as-default */
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 import App from 'App/app.jsx';
 import initStore from 'App/initStore';
@@ -27,8 +28,7 @@ const initApp = async () => {
 
     const wrapper = document.getElementById('derivatives_trader');
     if (wrapper) {
-        const root = createRoot(wrapper);
-        root.render(<App root_store={root_store} />);
+        ReactDOM.render(<App root_store={root_store} />, wrapper);
     }
 };
 
