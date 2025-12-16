@@ -1,9 +1,11 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+
+import { APIProvider } from '@deriv/api';
+import { mockStore, StoreProvider } from '@deriv/stores';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
-import { APIProvider } from '@deriv/api';
-import { StoreProvider, mockStore } from '@deriv/stores';
+
 import ToggleMenuDrawer from '../toggle-menu-drawer';
 
 // Mock all the problematic imports
@@ -429,7 +431,7 @@ describe('<ToggleMenuDrawer />', () => {
             await user.click(homeItem);
 
             expect(mockLocation.href).toBe(
-                'https://deriv.com/options?acc=options&curr=EUR&from=home&source=options&lang=ES'
+                'https://deriv.com/home?acc=options&curr=EUR&from=home&source=options&lang=ES'
             );
         });
 
@@ -463,7 +465,7 @@ describe('<ToggleMenuDrawer />', () => {
 
             // Verify that the language parameter is properly encoded
             expect(mockLocation.href).toBe(
-                'https://deriv.com/options?acc=options&curr=USD&from=home&source=options&lang=zh-CN'
+                'https://deriv.com/home?acc=options&curr=USD&from=home&source=options&lang=zh-CN'
             );
         });
 
