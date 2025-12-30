@@ -200,9 +200,9 @@ const AccountHeader = observer(
             <React.Fragment>
                 <div className='account-header' ref={dropdown_ref}>
                     {isLoading ? (
-                        <React.Fragment>
+                        <div className='account-header--loading'>
                             <Skeleton height={48} width={240} />
-                        </React.Fragment>
+                        </div>
                     ) : (
                         <React.Fragment>
                             {renderAccountInfo()}

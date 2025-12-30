@@ -5,6 +5,10 @@
     padding-bottom: 1.6rem;
     position: relative;
 
+    &--loading {
+        margin-left: 1.6rem;
+    }
+
     &__container {
         display: flex;
         flex-direction: column;

@@ -807,26 +807,28 @@ export default class TradeStore extends BaseStore {
         }
         this.should_show_active_symbols_loading = should_show_loading;
 
-        await this.setActiveSymbols();
+        try {
+            await this.setActiveSymbols();
 
-        const { symbol, showModal } = getTradeURLParams({ active_symbols: this.active_symbols });
-        if (showModal && should_show_loading && !this.root_store.client.is_logging_in) {
-            this.root_store.ui.toggleUrlUnavailableModal(true);
+            const { symbol, showModal } = getTradeURLParams({ active_symbols: this.active_symbols });
+            if (showModal && should_show_loading && !this.root_store.client.is_logging_in) {
+                this.root_store.ui.toggleUrlUnavailableModal(true);
+            }
+            const hasSymbolChanged = symbol && symbol !== this.symbol;
+            if (hasSymbolChanged) this.symbol = symbol;
+            if (should_set_default_symbol && !symbol) await this.setDefaultSymbol();
+            setTradeURLParams({ symbol: hasSymbolChanged ? symbol : this.symbol });
+
+            const r = await WS.storage.contractsFor(this.symbol);
+            if (['InvalidSymbol', 'InputValidationFailed'].includes(r.error?.code)) {
+                const symbol_to_update = await pickDefaultSymbol(this.active_symbols);
+                await this.processNewValuesAsync({ symbol: symbol_to_update });
+            }
+        } finally {
+            runInAction(() => {
+                this.should_show_active_symbols_loading = false;
+            });
         }
-        const hasSymbolChanged = symbol && symbol !== this.symbol;
-        if (hasSymbolChanged) this.symbol = symbol;
-        if (should_set_default_symbol && !symbol) await this.setDefaultSymbol();
-        setTradeURLParams({ symbol: hasSymbolChanged ? symbol : this.symbol });
-
-        const r = await WS.storage.contractsFor(this.symbol);
-        if (['InvalidSymbol', 'InputValidationFailed'].includes(r.error?.code)) {
-            const symbol_to_update = await pickDefaultSymbol(this.active_symbols);
-            await this.processNewValuesAsync({ symbol: symbol_to_update });
-        }
-
-        runInAction(() => {
-            this.should_show_active_symbols_loading = false;
-        });
     }
 
     async setDefaultSymbol() {
@@ -841,7 +843,7 @@ export default class TradeStore extends BaseStore {
     async setActiveSymbols() {
         const showError = this.root_store.common.showError;
 
-        const { active_symbols, error } = await WS.authorized.activeSymbols();
+        const { active_symbols, error } = await WS.activeSymbols();
 
         if (error) {
             showError({ message: localize('Trading is unavailable at this time.') });
