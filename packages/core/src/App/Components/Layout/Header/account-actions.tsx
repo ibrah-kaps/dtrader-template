@@ -22,6 +22,7 @@ const AccountInfo = React.lazy(
 const AccountActionsComponent = observer(() => {
     const { client, common, ui } = useStore();
     const { currency, is_logged_in, loginid } = client;
+    const { is_switching_account, setIsSwitchingAccount } = ui;
 
     const { localize } = useTranslations();
     const { sendBridgeEvent } = useMobileBridge();
@@ -30,17 +31,17 @@ const AccountActionsComponent = observer(() => {
     const { data, isLoading, error, refetch } = useDerivativesAccount(loginid, is_logged_in);
     const accounts = data?.data || [];
 
-    const [is_switching_account, setIsSwitchingAccount] = React.useState(false);
-
+    // Handle account switch start
     const handleAccountSwitchStart = React.useCallback(() => {
         setIsSwitchingAccount(true);
-    }, []);
+    }, [setIsSwitchingAccount]);
 
+    // Reset switching state when loading completes with either data or error
     React.useEffect(() => {
-        if (!isLoading && accounts.length > 0) {
+        if (!isLoading && (accounts.length > 0 || error)) {
             setIsSwitchingAccount(false);
         }
-    }, [isLoading, accounts]);
+    }, [isLoading, accounts, error, setIsSwitchingAccount]);
 
     // Determine account types available
     const hasOnlyDemoAccounts = accounts.length > 0 && accounts.every(acc => acc.account_type === 'demo');

@@ -30,6 +30,8 @@ const AccountHeader = observer(
     }: AccountHeaderProps = {}) => {
         const { localize } = useTranslations();
         const { client, common, ui } = useStore();
+        const { is_switching_account, setIsSwitchingAccount } = ui;
+
         const { isMobile } = useDevice();
         const { sendBridgeEvent } = useMobileBridge();
 
@@ -45,7 +47,6 @@ const AccountHeader = observer(
         // Dropdown state
         const [is_dropdown_open, setIsDropdownOpen] = React.useState(false);
         const [is_account_switcher_highlighted, setIsAccountSwitcherHighlighted] = React.useState(false);
-        const [is_switching_account, setIsSwitchingAccount] = React.useState(false);
         const dropdown_ref = React.useRef<HTMLDivElement>(null);
         const account_switcher_container_ref = React.useRef<HTMLDivElement>(null);
 
@@ -57,14 +58,14 @@ const AccountHeader = observer(
         // Handle account switch start
         const handleAccountSwitchStart = React.useCallback(() => {
             setIsSwitchingAccount(true);
-        }, []);
+        }, [setIsSwitchingAccount]);
 
-        // Reset switching state when data is available
+        // Reset switching state when loading completes (success or error)
         React.useEffect(() => {
-            if (!isLoading && data) {
+            if (!isLoading && (data || error)) {
                 setIsSwitchingAccount(false);
             }
-        }, [isLoading, data]);
+        }, [isLoading, data, error, setIsSwitchingAccount]);
 
         // Close dropdown when clicking outside
         React.useEffect(() => {

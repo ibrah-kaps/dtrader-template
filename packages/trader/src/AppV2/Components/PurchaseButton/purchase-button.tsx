@@ -48,6 +48,7 @@ const PurchaseButton = observer(({ onPurchaseSuccess }: TPurchaseButtonProps = {
         portfolio: { all_positions, onClickSell },
         client,
         common: { services_error },
+        ui: { is_switching_account },
     } = useStore();
     const { is_logged_in } = client;
     const { trade_types: trade_types_list } = useContractsFor();
@@ -228,7 +229,10 @@ const PurchaseButton = observer(({ onPurchaseSuccess }: TPurchaseButtonProps = {
                         const is_single_button = contract_types.length === 1;
                         const is_loading = loading_button_index === index;
                         const is_disabled =
-                            !is_trade_enabled_v2 || info.has_error || (!!purchase_info.error && !is_modal_error);
+                            !is_trade_enabled_v2 ||
+                            info.has_error ||
+                            (!!purchase_info.error && !is_modal_error) ||
+                            is_switching_account;
 
                         return (
                             <React.Fragment key={trade_type}>

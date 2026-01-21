@@ -14,6 +14,7 @@ type TUiStore = Pick<
     | 'addToast'
     | 'current_focus'
     | 'is_mobile'
+    | 'is_switching_account'
     | 'removeToast'
     | 'setCurrentFocus'
     | 'should_show_cancellation_warning'
@@ -135,6 +136,7 @@ export const PositionsDrawerContent = observer(({ ...props }) => {
     } = portfolio;
     const {
         is_mobile,
+        is_switching_account,
         addToast,
         current_focus,
         removeToast,
@@ -173,6 +175,7 @@ export const PositionsDrawerContent = observer(({ ...props }) => {
                     server_time={server_time}
                     getContractById={getContractById}
                     is_mobile={is_mobile}
+                    is_switching_account={is_switching_account}
                     current_focus={current_focus}
                     removeToast={removeToast}
                     setCurrentFocus={setCurrentFocus}
@@ -187,16 +190,21 @@ export const PositionsDrawerContent = observer(({ ...props }) => {
         />
     );
 
-    return all_positions.length === 0 || error ? <EmptyPortfolioMessage error={error} /> : body_content;
+    return all_positions.length === 0 || error || is_switching_account ? (
+        <EmptyPortfolioMessage error={error} />
+    ) : (
+        body_content
+    );
 });
 
 /**
  * PositionsDrawerFooter - Footer component showing positions summary
  */
 export const PositionsDrawerFooter = observer(() => {
-    const { client, portfolio } = useStore();
+    const { client, portfolio, ui } = useStore();
     const { currency } = client;
     const { all_positions } = portfolio;
+    const { is_switching_account } = ui;
 
     const getTotalProfit = (active_positions: TPortfolioPosition[]) => {
         return active_positions.reduce((total: number, position: TPortfolioPosition) => {
@@ -205,7 +213,7 @@ export const PositionsDrawerFooter = observer(() => {
         }, 0);
     };
 
-    if (all_positions.length === 0) return null;
+    if (all_positions.length === 0 || is_switching_account) return null;
 
     return (
         <div className='positions-drawer-footer--summary'>
