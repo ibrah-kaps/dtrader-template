@@ -3,10 +3,9 @@ import clsx from 'clsx';
 
 import { LabelPairedCircleInfoMdRegularIcon } from '@deriv/quill-icons';
 import { TextField } from '@deriv-com/quill-ui';
+import { TooltipPortal } from '@deriv/components';
 
 import { InputPopover } from 'AppV2/Components/InputPopover';
-
-import ParameterTooltip from './ParameterTooltip';
 
 type TTradeParameterPopoverProps = {
     label: React.ReactNode;
@@ -86,9 +85,14 @@ const TradeParameterPopover = ({
                 />
                 {description && (
                     <div className='trade-params__info-icon-wrapper'>
-                        <ParameterTooltip message={description} fieldRef={field_ref}>
+                        <TooltipPortal
+                            message={description}
+                            anchorRef={field_ref}
+                            position='left'
+                            className='trade-params__parameter-tooltip'
+                        >
                             <LabelPairedCircleInfoMdRegularIcon className='trade-params__info-icon' />
-                        </ParameterTooltip>
+                        </TooltipPortal>
                     </div>
                 )}
             </div>

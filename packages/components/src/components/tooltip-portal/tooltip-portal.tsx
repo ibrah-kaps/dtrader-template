@@ -21,6 +21,8 @@ type TTooltipPortalProps = {
     className?: string;
     /** Position of the tooltip relative to the trigger element */
     position?: 'top' | 'bottom' | 'left' | 'right';
+    /** Optional ref to an external element to position the tooltip relative to (instead of the trigger) */
+    anchorRef?: React.RefObject<HTMLElement>;
 };
 
 /**
@@ -37,7 +39,7 @@ type TTooltipPortalProps = {
  * - All current usage sites use <Localize> component which handles sanitization
  * - If adding new usage, ensure user input is properly sanitized
  */
-const TooltipPortal = ({ message, children, className, position = 'top' }: TTooltipPortalProps) => {
+const TooltipPortal = ({ message, children, className, position = 'top', anchorRef }: TTooltipPortalProps) => {
     const [isVisible, setIsVisible] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
     const [arrowPosition, setArrowPosition] = useState({ top: 0, left: 0 });
@@ -45,9 +47,11 @@ const TooltipPortal = ({ message, children, className, position = 'top' }: TTool
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     const calculatePosition = React.useCallback(() => {
-        if (!triggerRef.current || !tooltipRef.current) return;
+        // Use anchorRef if provided, otherwise use triggerRef
+        const positioningElement = anchorRef?.current || triggerRef.current;
+        if (!positioningElement || !tooltipRef.current) return;
 
-        const triggerRect = triggerRef.current.getBoundingClientRect();
+        const triggerRect = positioningElement.getBoundingClientRect();
         const tooltipRect = tooltipRef.current.getBoundingClientRect();
         const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
         const scrollY = window.pageYOffset || document.documentElement.scrollTop;
@@ -105,7 +109,7 @@ const TooltipPortal = ({ message, children, className, position = 'top' }: TTool
         if (position === 'top') {
             setArrowPosition({ top: arrowTop, left: arrowLeft });
         }
-    }, [position]);
+    }, [position, anchorRef]);
 
     useEffect(() => {
         if (isVisible) {
