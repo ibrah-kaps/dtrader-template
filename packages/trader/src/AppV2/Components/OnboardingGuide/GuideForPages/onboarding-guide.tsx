@@ -30,7 +30,7 @@ const PARTIAL_GUIDE_CONFIGS: Record<string, TPartialGuideConfig> = {
 };
 
 const OnboardingGuide = ({ type = 'trade_page', is_dark_mode_on, callback }: TOnboardingGuideProps) => {
-    const { isDesktop } = useDevice();
+    const { isMobile } = useDevice();
     const [is_modal_open, setIsModalOpen] = React.useState(false);
     const [should_run_guide, setShouldRunGuide] = React.useState(false);
     const guide_timeout_ref = React.useRef<ReturnType<typeof setTimeout>>();
@@ -98,7 +98,7 @@ const OnboardingGuide = ({ type = 'trade_page', is_dark_mode_on, callback }: TOn
 
     React.useEffect(() => {
         // Only show onboarding for mobile users
-        if (isDesktop) return;
+        if (!isMobile) return;
 
         // For new users: show modal to start full onboarding
         if (!guide_dtrader_v2?.[type]) {
@@ -111,10 +111,10 @@ const OnboardingGuide = ({ type = 'trade_page', is_dark_mode_on, callback }: TOn
 
         return () => clearTimeout(guide_timeout_ref.current);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [guide_dtrader_v2?.[type], should_show_partial_guide, isDesktop]);
+    }, [guide_dtrader_v2?.[type], should_show_partial_guide, isMobile]);
 
     // Only show onboarding for mobile users
-    if (isDesktop) return null;
+    if (!isMobile) return null;
 
     return (
         <React.Fragment>
