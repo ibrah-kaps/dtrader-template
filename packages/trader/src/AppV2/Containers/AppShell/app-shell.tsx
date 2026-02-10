@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 
@@ -27,6 +28,13 @@ const AppShell = observer(() => {
     const { active_positions_count } = portfolio;
     const { active_sidebar_flyout } = ui;
     const { isMobile } = useDevice();
+    const location = useLocation();
+
+    React.useEffect(() => {
+        if (active_sidebar_flyout && location.pathname !== routes.index) {
+            ui.closeSidebarFlyout();
+        }
+    }, [location.pathname]);
 
     const renderPositionIcon = (IconComponent: typeof StandaloneClockThreeRegularIcon) => {
         const icon = <IconComponent iconSize='sm' />;
@@ -74,7 +82,9 @@ const AppShell = observer(() => {
     return (
         <div className='app-shell'>
             {!isMobile && <Sidebar />}
-            <Router />
+            <div className='app-shell__main-content'>
+                <Router />
+            </div>
             {should_show_bottomnav && <BottomNav bottomNavItems={bottomNavItems} />}
         </div>
     );
