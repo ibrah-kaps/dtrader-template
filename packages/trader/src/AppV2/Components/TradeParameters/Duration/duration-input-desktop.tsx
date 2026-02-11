@@ -18,13 +18,16 @@ const MAX_VALUE = 60;
 
 const DurationInputDesktop: React.FC<TDurationInputDesktopProps> = observer(({ unit, onClose }) => {
     const { localize } = useTranslations();
-    const { duration, duration_unit, onChangeMultiple, duration_min_max, contract_expiry_type } = useTraderStore();
+    const { duration, duration_unit, onChangeMultiple, duration_min_max } = useTraderStore();
 
     const [inputValue, setInputValue] = useState<string>(duration_unit === unit ? String(duration) : '');
     const [error, setError] = useState<string>('');
 
     // Get dynamic min from backend, fallback to hardcoded values if unavailable
-    const [backendMin] = getDurationMinMaxValues(duration_min_max, contract_expiry_type, unit);
+    // Always use 'intraday' as the expiry type key - seconds and minutes always correspond to
+    // the 'intraday' entry in duration_min_max, regardless of the store's current
+    // contract_expiry_type (which may be stale, e.g. 'daily' after selecting End Time).
+    const [backendMin] = getDurationMinMaxValues(duration_min_max, 'intraday', unit);
     const min = backendMin ?? (unit === 's' ? FALLBACK_MIN_SECONDS : FALLBACK_MIN_MINUTES);
     const max = MAX_VALUE;
     const unitLabel = unit === 's' ? 'seconds' : 'minutes';

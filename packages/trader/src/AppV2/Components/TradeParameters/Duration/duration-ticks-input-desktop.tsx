@@ -16,10 +16,13 @@ const FALLBACK_MAX_TICKS = 10;
 
 const DurationTicksInputDesktop: React.FC<TDurationTicksInputDesktopProps> = observer(({ onClose }) => {
     const { localize } = useTranslations();
-    const { duration, duration_unit, onChangeMultiple, duration_min_max, contract_expiry_type } = useTraderStore();
+    const { duration, duration_unit, onChangeMultiple, duration_min_max } = useTraderStore();
 
     // Get dynamic min/max from backend, fallback to hardcoded values if unavailable
-    const [backendMin, backendMax] = getDurationMinMaxValues(duration_min_max, contract_expiry_type, 't');
+    // Always use 'tick' as the expiry type key - ticks always correspond to the 'tick' entry
+    // in duration_min_max, regardless of the store's current contract_expiry_type (which may
+    // be stale, e.g. 'daily' after selecting End Time).
+    const [backendMin, backendMax] = getDurationMinMaxValues(duration_min_max, 'tick', 't');
     const min = backendMin ?? FALLBACK_MIN_TICKS;
     const max = backendMax ?? FALLBACK_MAX_TICKS;
 

@@ -55,7 +55,6 @@ describe('DurationTicksInputDesktop', () => {
             duration_unit: 't',
             onChangeMultiple: mockOnChangeMultiple,
             duration_min_max: { tick: { min: 1, max: 10 } },
-            contract_expiry_type: 'tick',
         });
     });
 
@@ -79,7 +78,6 @@ describe('DurationTicksInputDesktop', () => {
             duration_unit: 'm',
             onChangeMultiple: mockOnChangeMultiple,
             duration_min_max: { tick: { min: 1, max: 10 } },
-            contract_expiry_type: 'tick',
         });
 
         render(<DurationTicksInputDesktop {...defaultProps} />);
@@ -432,12 +430,29 @@ describe('DurationTicksInputDesktop', () => {
                 duration_unit: 't',
                 onChangeMultiple: mockOnChangeMultiple,
                 duration_min_max: {},
-                contract_expiry_type: 'tick',
             });
 
             render(<DurationTicksInputDesktop {...defaultProps} />);
 
             expect(screen.getByText('Range: 1 - 10 ticks')).toBeInTheDocument();
+        });
+
+        it('always uses tick expiry type regardless of store contract_expiry_type', () => {
+            mockGetDurationMinMaxValues.mockReturnValue([1, 10]);
+            (useTraderStore as jest.Mock).mockReturnValue({
+                duration: 5,
+                duration_unit: 't',
+                onChangeMultiple: mockOnChangeMultiple,
+                duration_min_max: { tick: { min: 1, max: 10 }, daily: { min: 86400, max: 31536000 } },
+            });
+
+            render(<DurationTicksInputDesktop {...defaultProps} />);
+
+            expect(mockGetDurationMinMaxValues).toHaveBeenCalledWith(
+                expect.objectContaining({ tick: { min: 1, max: 10 } }),
+                'tick',
+                't'
+            );
         });
     });
 });
