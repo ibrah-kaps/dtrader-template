@@ -5,6 +5,7 @@ $TABS_HEIGHT: var(--core-size-2400);
     background-color: var(--semantic-color-slate-solid-surface-frame-mid);
     position: relative;
     padding-bottom: var(--core-spacing-2800);
+    overflow: hidden;
 
     .tab-list--container {
         display: block;
