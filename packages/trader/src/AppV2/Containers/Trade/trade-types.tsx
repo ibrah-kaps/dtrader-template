@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useMobileBridge } from '@deriv/api';
+import { Skeleton } from '@deriv/components';
 import { LabelPairedPresentationScreenSmRegularIcon } from '@deriv/quill-icons';
 import { trackAnalyticsEvent } from '@deriv/shared';
 import { safeParse } from '@deriv/utils';
@@ -82,7 +83,8 @@ const TradeTypes = ({ contract_type, onTradeTypeSelect, trade_types, is_dark_mod
 
     // Filter localStorage data immediately to prevent stale types from rendering in native mobile app
     const saved_pinned_trade_types: TResultItem[] = useMemo(() => {
-        if (trade_types_ids.length === 0) return raw_saved_pinned_trade_types;
+        // Return empty array if trade_types_ids is not available to prevent showing stale types
+        if (trade_types_ids.length === 0) return [];
 
         // Filter out unavailable trade types before component renders
         return raw_saved_pinned_trade_types.map((category: TResultItem) => ({
@@ -106,12 +108,11 @@ const TradeTypes = ({ contract_type, onTradeTypeSelect, trade_types, is_dark_mod
             const current_items = raw_saved_pinned_trade_types.flatMap(type => type.items);
             const filtered_items = filtered_pinned.flatMap(type => type.items);
 
-            // Check both length and actual item IDs to detect any changes
+            const currentIds = new Set(current_items.map((item: TItem) => item.id));
+            const filteredIds = new Set(filtered_items.map((item: TItem) => item.id));
+
             const hasChanged =
-                current_items.length !== filtered_items.length ||
-                !current_items.every((item: TItem) =>
-                    filtered_items.some((filtered: TItem) => filtered.id === item.id)
-                );
+                currentIds.size !== filteredIds.size || ![...currentIds].every(id => filteredIds.has(id));
 
             if (hasChanged) {
                 localStorage.setItem('pinned_trade_types', JSON.stringify(filtered_pinned));
@@ -128,7 +129,9 @@ const TradeTypes = ({ contract_type, onTradeTypeSelect, trade_types, is_dark_mod
     const getPinnedItems = useCallback(() => {
         const pinned_items = filterItems(getItems(saved_pinned_trade_types), trade_types_ids);
 
-        if (pinned_items.length === 0) {
+        // Only use all trade types as fallback if we have valid trade_types_array
+        // and trade_types_ids is populated (not during initial load)
+        if (pinned_items.length === 0 && trade_types_ids.length > 0) {
             pinned_items.push(...trade_types_array.slice(0, trade_types_array.length));
         }
         return pinned_items;
@@ -262,21 +265,28 @@ const TradeTypes = ({ contract_type, onTradeTypeSelect, trade_types, is_dark_mod
     const isTradeTypeSelected = (value: string) =>
         checkContractTypePrefix([contract_type, value]) || contract_type === value;
 
-    const getTradeTypeChips = () => {
+    // Memoize trade type chips to ensure they only update when dependencies change
+    // and prevent rendering stale data from state
+    const trade_type_chips = useMemo(() => {
+        // Guard: Return empty array if no valid trade types to prevent showing stale data
+        if (trade_types_ids.length === 0) return [];
+
         const pinned_items = getPinnedItems();
         const is_contract_type_in_pinned = pinned_items.some(item => item.id === contract_type);
 
+        // Get other items, but filter them against trade_types_ids to prevent stale state data
+        const filtered_other_items = getItems(other_trade_types).filter(item => trade_types_ids.includes(item.id));
+
         const other_item = !is_contract_type_in_pinned
-            ? getItems(other_trade_types).find(
+            ? filtered_other_items.find(
                   item => item && (item.id === contract_type || checkContractTypePrefix([item.id, contract_type]))
               )
             : null;
 
-        // Filter to only include items that exist in current trade_types to prevent unavailable types from showing
+        // Final filter to only include items that exist in current trade_types
         return [...pinned_items, other_item].filter(item => item && trade_types_ids.includes(item.id)) as TItem[];
-    };
+    }, [trade_types_ids, getPinnedItems, other_trade_types, contract_type]);
 
-    const trade_type_chips = getTradeTypeChips();
     const should_show_view_all = trade_type_chips.length >= 2 || getItems(other_trade_types).length > 0;
     const show_trade_type_list_divider = !!other_trade_types[0]?.items?.length;
     const show_editing_divider = trade_types_array.length !== pinned_trade_types[0]?.items?.length;
@@ -306,6 +316,14 @@ const TradeTypes = ({ contract_type, onTradeTypeSelect, trade_types, is_dark_mod
             component: <Guide show_trigger_button={false} is_open_by_default show_description_in_a_modal={false} />,
         },
     ];
+
+    if (trade_types_ids.length === 0) {
+        return (
+            <div className='trade__trade-types'>
+                <Skeleton width={88} height={32} />
+            </div>
+        );
+    }
 
     return (
         <div className='trade__trade-types' ref={trade_types_ref}>
