@@ -125,22 +125,20 @@ export const getWebSocketURL = (isProductionEnv: boolean): string => {
 
 /**
  * Gets the whoami endpoint URL
- * @param isProductionEnv - Whether the current environment is production
  * @returns Whoami endpoint URL (e.g., "https://auth.deriv.com/sessions/whoami")
  */
-export const getWhoAmIURL = (isProductionEnv: boolean): string => {
-    return isProductionEnv
+export const getWhoAmIURL = (): string => {
+    return isProductionEnvironment()
         ? config_data.platform.whoami_endpoint.production
         : config_data.platform.whoami_endpoint.staging;
 };
 
 /**
  * Gets the logout endpoint URL
- * @param isProductionEnv - Whether the current environment is production
  * @returns Logout endpoint URL (e.g., "https://auth.deriv.com/self-service/logout/browser")
  */
-export const getLogoutURL = (isProductionEnv: boolean): string => {
-    return isProductionEnv
+export const getLogoutURL = (): string => {
+    return isProductionEnvironment()
         ? config_data.platform.logout_endpoint.production
         : config_data.platform.logout_endpoint.staging;
 };
