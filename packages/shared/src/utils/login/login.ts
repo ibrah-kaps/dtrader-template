@@ -52,7 +52,7 @@ export const redirectToLogin = async (_language?: string): Promise<void> => {
         response_type: 'code',
         client_id: getOAuthClientId(),
         redirect_uri: getOAuthRedirectUri(),
-        scope: 'trade account_manage',
+        scope: 'trade',
         state: csrf_token,
         code_challenge: challenge,
         code_challenge_method: 'S256',
