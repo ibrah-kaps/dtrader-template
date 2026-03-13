@@ -15,8 +15,8 @@ const LoginButton = observer(({ className }: LoginButtonV2Props) => {
     const { localize } = useTranslations();
     const { common } = useStore();
 
-    const handleLoginClick = () => {
-        redirectToLogin(common.current_language);
+    const handleLoginClick = async () => {
+        await redirectToLogin(common.current_language);
     };
 
     return (

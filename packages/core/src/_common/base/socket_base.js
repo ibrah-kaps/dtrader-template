@@ -29,6 +29,9 @@ const BinarySocketBase = (() => {
 
     const setWSUrl = url => {
         configured_ws_url = url;
+        // Switching to an authenticated URL — treat the next onOpen as an initial connection
+        // so setIsAuthorize(false) is called correctly regardless of prior public socket state.
+        if (url) is_connected_before = false;
     };
 
     const getWSUrl = () => configured_ws_url;

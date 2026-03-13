@@ -41,7 +41,7 @@ const apiFetch = async (url: string, options: RequestInit = {}): Promise<Respons
 export const fetchAccounts = async (): Promise<TAccount[]> => {
     const res = await apiFetch(`${getApiV4BaseUrl()}/trading/v1/options/accounts`);
     if (!res.ok) throw new Error(`fetchAccounts failed: ${res.status}`);
-    return (await res.json()).data.data;
+    return (await res.json()).data;
 };
 
 /** POST /trading/v1/options/accounts */

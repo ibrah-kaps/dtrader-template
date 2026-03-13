@@ -98,6 +98,8 @@ export const exchangeCodeForToken = async (
     if (!response.ok) throw new Error(`Token exchange failed: ${response.status}`);
 
     const data = await response.json();
+    if (!data.access_token)
+        throw new Error(`Token exchange succeeded but no access_token in response: ${JSON.stringify(data)}`);
     clearPKCEVerifier();
     storeTokens(data.access_token, data.refresh_token, data.expires_in);
     return data;

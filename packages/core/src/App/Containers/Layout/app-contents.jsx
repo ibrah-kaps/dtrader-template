@@ -31,16 +31,19 @@ const AppContents = observer(({ children }) => {
     const child_ref = React.useRef(null);
 
     React.useEffect(() => {
-        if (should_redirect_user_to_login && client.is_client_store_initialized) {
-            const hasAccountId = !!localStorage.getItem('account_id');
+        const run = async () => {
+            if (should_redirect_user_to_login && client.is_client_store_initialized) {
+                const hasAccountId = !!localStorage.getItem('account_id');
 
-            if (hasAccountId) {
-                setShouldRedirectToLogin(false);
-            } else {
-                setShouldRedirectToLogin(false);
-                redirectToLogin(common.current_language);
+                if (hasAccountId) {
+                    setShouldRedirectToLogin(false);
+                } else {
+                    setShouldRedirectToLogin(false);
+                    await redirectToLogin(common.current_language);
+                }
             }
-        }
+        };
+        run();
     }, [should_redirect_user_to_login, is_logged_in, setShouldRedirectToLogin, client.is_client_store_initialized]);
 
     React.useEffect(() => {

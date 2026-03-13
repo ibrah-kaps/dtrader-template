@@ -27,10 +27,10 @@ const RedirectToLoginModal = observer(() => {
     const url_params = new URLSearchParams(useLocation().search);
     const header = url_params.get('header');
 
-    const showModal = () => {
+    const showModal = async () => {
         setVisible(true);
         if (window.localStorage.getItem('is_redirecting') !== 'true') {
-            redirectToLogin(common.current_language);
+            await redirectToLogin(common.current_language);
         }
     };
 
